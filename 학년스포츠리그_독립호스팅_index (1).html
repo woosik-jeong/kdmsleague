@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>관동중 스포츠클럽 리그전</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent: #17495F;
+    --accent-deep: #0F3446;
+    --wood: #D9A055;
+    --wood-soft: #F0DAB2;
+    --bg: #EEF3F1;
+    --panel: #FFFFFF;
+    --ink: #1C2B30;
+    --ink-soft: #5C7078;
+    --line: #DCE6E2;
+    --win: #2E7D5B;
+    --win-soft: #E4F3EC;
+    --lose: #B0473F;
+    --lose-soft: #FBEAE8;
+    --draw: #8A6D2F;
+    --draw-soft: #F5EDDA;
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:40px;
+    transition:background .2s ease;
+  }
+  ::selection{background:var(--wood-soft);}
+
+  header.top{
+    background: linear-gradient(160deg, var(--accent) 0%, var(--accent-deep) 100%);
+    color:#fff;
+    padding:20px 18px 16px;
+    position:relative;
+    overflow:hidden;
+    transition:background .25s ease;
+  }
+  header.top::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:10px;
+    background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.55) 0 2px, transparent 2px 10px);
+    opacity:.5;
+  }
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--wood-soft);
+    margin:0 0 4px;
+  }
+  h1{
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    font-size:24px;
+    letter-spacing:.01em;
+    margin:0 0 6px;
+    text-transform:uppercase;
+  }
+  .top-sub{
+    font-size:12.5px;
+    color:#CFE0E4;
+    margin:0;
+    line-height:1.5;
+  }
+  .mode-toggle{
+    position:absolute;
+    top:18px;
+    right:16px;
+    appearance:none;
+    border:1.5px solid rgba(255,255,255,.35);
+    background:rgba(255,255,255,.1);
+    color:#fff;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:11.5px;
+    padding:7px 11px;
+    border-radius:999px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .mode-toggle.is-admin{
+    background:var(--wood);
+    border-color:var(--wood);
+    color:#2A1E08;
+  }
+  .viewer-banner{
+    background:var(--wood-soft);
+    color:#7A5A16;
+    font-size:12.5px;
+    font-weight:600;
+    text-align:center;
+    padding:10px 12px;
+    border-radius:10px;
+    margin-bottom:12px;
+  }
+  input:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+    background:var(--line) !important;
+  }
+
+  /* ---------- Sport tabs (top level) ---------- */
+  nav.sport-tabs{
+    display:flex;
+    gap:8px;
+    padding:12px 14px;
+    background:var(--accent-deep);
+  }
+  nav.sport-tabs button{
+    flex:1;
+    appearance:none;
+    border:1.5px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.06);
+    color:#B9CBD0;
+    font-family:'Oswald',sans-serif;
+    font-size:14px;
+    letter-spacing:.02em;
+    padding:10px 6px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  nav.sport-tabs button .ic{margin-right:6px;}
+  nav.sport-tabs button.active{
+    background:var(--wood);
+    border-color:var(--wood);
+    color:#2A1E08;
+    font-weight:600;
+  }
+
+  /* ---------- Grade / League selector ---------- */
+  .grade-league{
+    max-width:640px;
+    margin:0 auto;
+    padding:14px 14px 0;
+  }
+  .grade-chips{
+    display:flex;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .grade-chip{
+    flex:1;
+    font-family:'Oswald',sans-serif;
+    font-size:13.5px;
+    font-weight:500;
+    padding:9px 4px;
+    text-align:center;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:var(--panel);
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .grade-chip.active{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:#fff;
+  }
+  .league-toggle{
+    display:flex;
+    gap:8px;
+    margin-bottom:2px;
+  }
+  .league-btn{
+    flex:1;
+    font-family:'Space Mono',monospace;
+    font-size:12.5px;
+    font-weight:700;
+    padding:9px 4px;
+    text-align:center;
+    border-radius:10px;
+    border:1.5px dashed var(--line);
+    background:#fff;
+    color:var(--ink-soft);
+    cursor:pointer;
+    position:relative;
+  }
+  .league-btn .count{
+    display:block;
+    font-family:'Inter',sans-serif;
+    font-weight:400;
+    font-size:10px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .league-btn.active{
+    border-style:solid;
+    border-color:var(--accent);
+    background:var(--wood-soft);
+    color:var(--accent-deep);
+  }
+  .league-btn.active .count{color:var(--accent-deep);}
+
+  /* ---------- View tabs ---------- */
+  nav.tabs{
+    display:flex;
+    gap:6px;
+    padding:14px 14px 0;
+    max-width:640px;
+    margin:0 auto;
+  }
+  nav.tabs button{
+    flex:1;
+    appearance:none;
+    border:none;
+    background:transparent;
+    color:var(--ink-soft);
+    font-family:'Oswald',sans-serif;
+    font-size:13px;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+    padding:9px 4px 11px;
+    cursor:pointer;
+    border-bottom:3px solid var(--line);
+    transition:color .15s ease, border-color .15s ease;
+  }
+  nav.tabs button.active{
+    color:var(--accent);
+    border-bottom-color:var(--wood);
+  }
+
+  main{max-width:640px;margin:0 auto;padding:12px 14px 8px;}
+
+  /* ---------- Round chips ---------- */
+  .round-strip{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding:2px 2px 14px;
+    scrollbar-width:none;
+  }
+  .round-strip::-webkit-scrollbar{display:none;}
+  .round-chip{
+    flex:0 0 auto;
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:13px;
+    padding:9px 14px;
+    border-radius:999px;
+    border:1.5px solid var(--line);
+    background:var(--panel);
+    color:var(--ink-soft);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .round-chip .dot{
+    display:inline-block;
+    width:6px;height:6px;border-radius:50%;
+    background:var(--wood);
+    margin-left:6px;
+    vertical-align:middle;
+    opacity:0;
+  }
+  .round-chip.has-data .dot{opacity:1;}
+  .round-chip.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+
+  /* ---------- Match card ---------- */
+  .match-card{
+    background:var(--panel);
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    margin-bottom:12px;
+    overflow:hidden;
+    box-shadow:0 1px 2px rgba(20,40,45,.04);
+  }
+  .match-head{
+    display:grid;
+    grid-template-columns:1fr 26px 1fr;
+    align-items:center;
+    padding:14px 14px 10px;
+  }
+  .team-name-line{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .team-name-line.right{justify-content:flex-end;}
+  .team-name{
+    font-family:'Oswald',sans-serif;
+    font-size:16.5px;
+    font-weight:600;
+    letter-spacing:.01em;
+  }
+  .team-name.right{text-align:right;}
+  .team-badge{
+    display:inline-block;
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    padding:2px 7px;
+    border-radius:6px;
+    font-weight:700;
+    flex:0 0 auto;
+  }
+  .team-badge:empty{display:none;}
+  .team-badge.win{background:var(--win-soft);color:var(--win);}
+  .team-badge.lose{background:var(--lose-soft);color:var(--lose);}
+  .team-badge.draw{background:var(--draw-soft);color:var(--draw);}
+  .net{
+    height:34px;
+    background-image:
+      repeating-linear-gradient(45deg, transparent 0 5px, var(--line) 5px 6px),
+      repeating-linear-gradient(-45deg, transparent 0 5px, var(--line) 5px 6px);
+    border-left:1px dashed var(--line);
+    border-right:1px dashed var(--line);
+  }
+  .ball{
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:15px;
+    border-left:1px dashed var(--line);
+    border-right:1px dashed var(--line);
+    color:var(--ink-soft);
+  }
+  .sets-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    padding:2px 14px 14px;
+  }
+  .set-box{
+    background:var(--bg);
+    border-radius:10px;
+    padding:8px 6px 9px;
+    text-align:center;
+  }
+  .set-label{
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .set-inputs{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+  }
+  .set-inputs input{
+    width:34px;
+    text-align:center;
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:15px;
+    border:1.5px solid var(--line);
+    border-radius:7px;
+    padding:5px 0;
+    background:#fff;
+    color:var(--ink);
+  }
+  .set-inputs input:focus{outline:none;border-color:var(--accent);}
+  .set-inputs span{color:var(--ink-soft);font-size:12px;font-family:'Space Mono',monospace;}
+  .set-winner-a input:first-child,
+  .set-winner-b input:last-child{
+    border-color:var(--win);
+    background:var(--win-soft);
+  }
+  .set-inputs input.invalid{
+    border-color:var(--lose) !important;
+    background:var(--lose-soft) !important;
+  }
+  .set-error{
+    min-height:14px;
+    font-size:10px;
+    color:var(--lose);
+    text-align:center;
+    margin-top:5px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+  }
+
+  /* soccer single-score row */
+  .score-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:6px 14px 16px;
+  }
+  .score-box{text-align:center;}
+  .score-box .set-label{margin-bottom:8px;}
+  .score-box input{
+    width:64px;
+    text-align:center;
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:26px;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:8px 0;
+    background:var(--bg);
+    color:var(--ink);
+  }
+  .score-box input:focus{outline:none;border-color:var(--accent);background:#fff;}
+  .score-colon{
+    font-family:'Space Mono',monospace;
+    font-size:22px;
+    color:var(--ink-soft);
+    margin-top:18px;
+  }
+
+  .match-status{
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    text-align:center;
+    padding:0 14px 12px;
+    color:var(--ink-soft);
+  }
+  .match-status.done{color:var(--win);}
+  .match-status.draw{color:var(--draw);}
+  .match-status.error{color:var(--lose);font-weight:700;}
+
+  /* ---------- Standings ---------- */
+  .standings-empty, .summary-empty{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--ink-soft);
+    font-size:14px;
+    line-height:1.7;
+  }
+  table.standings{
+    width:100%;
+    border-collapse:collapse;
+    background:var(--panel);
+    border-radius:var(--radius);
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  table.standings th{
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:#fff;
+    background:var(--accent);
+    padding:10px 5px;
+    text-align:center;
+  }
+  table.standings th:first-child{text-align:left;padding-left:14px;}
+  table.standings td{
+    padding:11px 5px;
+    text-align:center;
+    font-size:13px;
+    border-top:1px solid var(--line);
+  }
+  table.standings td:first-child{text-align:left;padding-left:14px;}
+  .rank-cell{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:16px;
+  }
+  tr.rank-1 td{background:var(--wood-soft);}
+  tr.rank-1 .rank-cell{color:#9A6B14;}
+  .class-cell{
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+  }
+  .diff-pos{color:var(--win);font-weight:700;}
+  .diff-neg{color:var(--lose);font-weight:700;}
+  .diff-zero{color:var(--ink-soft);}
+
+  /* ---------- Summary ---------- */
+  .summary-scroll{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--line);background:var(--panel);}
+  table.summary{border-collapse:collapse;font-size:12px;min-width:560px;width:100%;}
+  table.summary th{
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    background:var(--accent);
+    color:#fff;
+    padding:9px 7px;
+    position:sticky;top:0;
+  }
+  table.summary th:first-child, table.summary td:first-child{
+    position:sticky;left:0;
+    background:var(--accent-deep);
+    color:#fff;
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    z-index:2;
+  }
+  table.summary td{
+    padding:9px 7px;
+    text-align:center;
+    border-top:1px solid var(--line);
+    font-family:'Space Mono',monospace;
+  }
+  .wl-w{color:var(--win);font-weight:700;}
+  .wl-l{color:var(--lose);}
+  .wl-d{color:var(--draw);}
+
+  /* ---------- Save bar (sticky) ---------- */
+  .save-bar{
+    position:sticky;
+    bottom:0;
+    z-index:20;
+    max-width:640px;
+    margin:16px auto 0;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    background:linear-gradient(0deg, var(--bg) 60%, rgba(238,243,241,0));
+    display:flex;
+    gap:8px;
+  }
+  .save-btn{
+    flex:1;
+    appearance:none;
+    border:none;
+    background:var(--accent);
+    color:#fff;
+    font-family:'Oswald',sans-serif;
+    font-size:14.5px;
+    letter-spacing:.02em;
+    padding:13px 10px;
+    border-radius:12px;
+    cursor:pointer;
+    box-shadow:0 3px 10px rgba(15,52,70,.22);
+    transition:transform .1s ease, background .2s ease;
+  }
+  .save-btn:active{transform:scale(.98);}
+  .save-btn.saved{background:var(--win);}
+  .export-btn{
+    flex:0 0 auto;
+    appearance:none;
+    border:1.5px solid var(--line);
+    background:var(--panel);
+    color:var(--ink);
+    font-family:'Oswald',sans-serif;
+    font-size:13px;
+    padding:13px 14px;
+    border-radius:12px;
+    cursor:pointer;
+  }
+  .export-btn:active{background:var(--wood-soft);}
+
+  /* ---------- Footer bar ---------- */
+  .foot-note{
+    max-width:640px;
+    margin:10px auto 0;
+    padding:0 14px;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .reset-btn{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    font-size:11.5px;
+    padding:6px 11px;
+    border-radius:8px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .reset-btn:active{background:var(--lose-soft);color:var(--lose);border-color:var(--lose-soft);}
+
+  .section-title{
+    font-family:'Oswald',sans-serif;
+    font-size:13.5px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:2px 2px 10px;
+  }
+
+  /* ---------- Rules tab ---------- */
+  .rules-block{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 18px 18px;
+    margin-bottom:14px;
+  }
+  .rules-block.alt{background:var(--win-soft);border-color:#CFE6D9;}
+  .rules-block.warn-red{background:var(--lose-soft);border-color:#F3D3CF;}
+  .rules-block.warn-green{background:var(--win-soft);border-color:#CFE6D9;}
+  .rules-heading{
+    font-family:'Oswald',sans-serif;
+    font-size:17px;
+    font-weight:600;
+    color:var(--accent-deep);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .rules-heading.small{font-size:15px;margin-bottom:10px;}
+  .rules-heading-ic{font-size:18px;}
+  .rules-heading-sub{
+    font-family:'Inter',sans-serif;
+    font-weight:400;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .rules-list{
+    margin:0;
+    padding-left:22px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .rules-list li{
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--ink);
+  }
+  .rules-list b, .rules-check b{color:var(--accent-deep);}
+  .rules-check{
+    list-style:none;
+    margin:0 0 8px;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+  }
+  .rules-check li{
+    font-size:13.5px;
+    line-height:1.5;
+    padding-left:24px;
+    position:relative;
+  }
+  .rules-check li::before{
+    content:"✓";
+    position:absolute;
+    left:0;
+    color:var(--win);
+    font-weight:700;
+  }
+  .rules-note{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:4px 0 0;
+  }
+  .rules-note.center{text-align:center;margin-top:12px;}
+  .rules-plain{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .rules-plain li{
+    font-size:12.5px;
+    line-height:1.5;
+    padding-left:14px;
+    position:relative;
+    color:var(--ink);
+  }
+  .rules-plain li::before{
+    content:"•";
+    position:absolute;
+    left:0;
+  }
+  .rules-grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  @media (max-width:480px){
+    .rules-grid-2{grid-template-columns:1fr;}
+  }
+  .serve-order-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+  }
+  .serve-pos{
+    background:var(--bg);
+    border-radius:10px;
+    padding:12px 6px;
+    text-align:center;
+    font-size:11.5px;
+    line-height:1.5;
+    color:var(--ink-soft);
+  }
+  .serve-pos b{color:var(--ink);font-size:12.5px;}
+  .serve-num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:24px;height:24px;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:12px;
+    margin-bottom:6px;
+  }
+  .rules-footer{
+    text-align:center;
+    font-family:'Oswald',sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--accent-deep);
+    background:var(--wood-soft);
+    padding:12px;
+    border-radius:10px;
+    margin:4px 0 0;
+  }
+
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <button class="mode-toggle" id="modeToggle">🔒 뷰어 모드</button>
+  <p class="eyebrow" id="eyebrowText">빅발리볼 · 3학년 A리그 · 5라운드</p>
+  <h1 id="mainTitle">관동중 스포츠클럽 리그전</h1>
+  <p class="top-sub" id="topSub">리그를 고르고 세트 점수를 입력하면 승패와 순위가 자동으로 계산돼요.</p>
+</header>
+
+<nav class="sport-tabs">
+  <button class="active" data-sport="volleyball"><span class="ic">🏐</span>빅발리볼</button>
+  <button data-sport="soccer"><span class="ic">⚽</span>축구</button>
+</nav>
+
+<div class="grade-league">
+  <div class="grade-chips" id="gradeChips"></div>
+  <div class="league-toggle" id="leagueToggle"></div>
+</div>
+
+<nav class="tabs">
+  <button class="active" data-tab="entry">경기 입력</button>
+  <button data-tab="standings">순위표</button>
+  <button data-tab="summary">라운드 요약</button>
+  <button data-tab="rules" id="rulesTabBtn">경기 규칙</button>
+</nav>
+
+<main>
+
+  <section id="view-entry">
+    <div class="viewer-banner" id="viewerBanner">🔒 뷰어 모드 — 점수 입력은 관리자만 할 수 있어요</div>
+    <div class="round-strip" id="roundStrip"></div>
+    <div id="matchList"></div>
+  </section>
+
+  <section id="view-standings" hidden>
+    <p class="section-title">종합 순위 (전체 라운드 합산)</p>
+    <div id="standingsWrap"></div>
+  </section>
+
+  <section id="view-summary" hidden>
+    <p class="section-title">라운드별 학급 승-패</p>
+    <div id="summaryWrap"></div>
+  </section>
+
+  <section id="view-rules" hidden>
+    <div class="rules-block">
+      <div class="rules-heading"><span class="rules-heading-ic">📋</span>경기 규칙</div>
+      <ol class="rules-list">
+        <li>경기 시작 전 가위·바위·보를 통해 이긴 팀이 서브권 또는 진영을 선택한다.</li>
+        <li>서브는 배드민턴 서비스 라인에서 <b>언더 서브</b>로 실시한다. 네트를 맞고 넘어가도 인정되며, 상대방 서비스 라인을 꼭 넘어야 한다. (서비스 라인에 공이 겹치는 경우는 인정됨.)</li>
+        <li>서브는 언더 서브로 넣고, 언더핸드·오버핸드 리시브로 받아도 된다. 다만 언더핸드 리시브 외 오버핸드 또는 한 손으로 한 번에 넘기면 상대방 득점.</li>
+        <li>넘어온 공은 <b>1~5회</b> 안에 상대방 코트로 넘겨야 한다.</li>
+        <li>신체 일부가 네트에 닿으면 상대방 득점.</li>
+        <li>공이 절반 이상 넘어가기 전 플레이하면 <b>오버넷 반칙</b>으로 상대방 득점.</li>
+        <li>서브는 ①→②→③→④→⑤→⑥ 순서로 돌아가며 실시하고, <b>1득점마다</b> 다음 순서로 이동한다.</li>
+        <li><b>듀스는 실시하지 않는다.</b></li>
+        <li>라인에 공의 둘레가 겹치면 인으로 판정하며, 완전히 나가야 아웃이다.</li>
+        <li>판정이 애매하면 모든 선수는 자리에 앉아 합의 판정을 기다린다.</li>
+        <li>한 명이 여러 번 연속 터치는 불가능하다.</li>
+      </ol>
+    </div>
+
+    <div class="rules-block alt">
+      <div class="rules-heading"><span class="rules-heading-ic">👥</span>선발 및 교체 규칙</div>
+      <ul class="rules-check">
+        <li>매 경기 1SET·2SET 선발 인원 사전 선정</li>
+        <li>후보 선수 발생 시, 팀 점수가 <b>8점</b>이 되는 순간 선발 선수와 반드시 교체</li>
+        <li>1SET 출전 선수는 2SET 출전 불가</li>
+      </ul>
+      <p class="rules-note">※ 결석·부상 등으로 선발 인원이 부족한 경우 출전 가능</p>
+    </div>
+
+    <div class="rules-block">
+      <div class="rules-heading"><span class="rules-heading-ic">🔄</span>서브 타순 <span class="rules-heading-sub">(네트를 바라보고)</span></div>
+      <div class="serve-order-grid">
+        <div class="serve-pos"><span class="serve-num">①</span>서브 1번<br><b>왼쪽 앞</b></div>
+        <div class="serve-pos"><span class="serve-num">②</span>서브 2번<br><b>가운데 앞</b></div>
+        <div class="serve-pos"><span class="serve-num">③</span>서브 3번<br><b>오른쪽 앞</b></div>
+        <div class="serve-pos"><span class="serve-num">⑥</span>서브 6번<br><b>왼쪽 뒤</b></div>
+        <div class="serve-pos"><span class="serve-num">⑤</span>서브 5번<br><b>가운데 뒤</b></div>
+        <div class="serve-pos"><span class="serve-num">④</span>서브 4번<br><b>오른쪽 뒤</b></div>
+      </div>
+      <p class="rules-note center">①→②→③→④→⑤→⑥ 순서로 순환 · 1득점마다 다음 순서로 이동</p>
+    </div>
+
+    <div class="rules-grid-2">
+      <div class="rules-block warn-red">
+        <div class="rules-heading small"><span class="rules-heading-ic">🚫</span>서브 상황 실점</div>
+        <ul class="rules-plain">
+          <li>서비스 라인을 밟고 서브한 경우</li>
+          <li>스파이크 또는 옆으로 치는 형태로 서브한 경우</li>
+          <li>서브로 넘어온 공을 스파이크나 오버패스 형태로 한 번에 넘긴 경우</li>
+        </ul>
+      </div>
+      <div class="rules-block warn-green">
+        <div class="rules-heading small"><span class="rules-heading-ic">🚫</span>랠리 상황 실점</div>
+        <ul class="rules-plain">
+          <li>5회 터치 안에 상대편 코트로 공을 넘기지 못한 경우</li>
+          <li>한 명이 연속해서 터치한 경우</li>
+          <li>손이 네트를 넘어가서 공을 터치하거나 랠리 중 네트를 터치한 경우</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="rules-footer">🏆 공정한 경기와 존중하는 태도로 즐거운 빅발리볼을 만들어 갑시다!</p>
+  </section>
+
+</main>
+
+<div class="save-bar" id="saveBar">
+  <button class="save-btn" id="saveBtn" hidden>경기 결과 저장</button>
+  <button class="export-btn" id="exportBtn">CSV 내보내기</button>
+</div>
+
+<div class="foot-note">
+  <span id="saveStatus" hidden>아직 저장 안 함</span>
+  <button class="reset-btn" id="resetBtn" hidden>현재 리그 초기화</button>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var N_ROUNDS = 4; // 모든 리그 공통: 4라운드, 매 라운드 동일한 대진이 반복됨
+  var STORAGE_KEY = "matches";
+
+  // ▼▼▼ Firebase Realtime Database URL을 여기에 붙여넣으세요 ▼▼▼
+  var FIREBASE_DB_URL = "https://sports-league-c39a4-default-rtdb.asia-southeast1.firebasedatabase.app";
+  // ▲▲▲ ------------------------------------------------- ▲▲▲
+
+  var backendReady = FIREBASE_DB_URL && FIREBASE_DB_URL.indexOf("https://") === 0;
+  var FIREBASE_PATH = "school-sports-league/" + STORAGE_KEY; // DB 안에서 데이터가 저장되는 위치
+
+
+  var SPORTS = [
+    { id:"volleyball", name:"빅발리볼", icon:"🏐", accent:"#17495F", accentDeep:"#0F3446" },
+    { id:"soccer",     name:"축구",     icon:"⚽", accent:"#2F7D46", accentDeep:"#1F5230" }
+  ];
+
+  var GRADES = ["1학년","2학년","3학년"];
+  var LETTERS = ["A","B"];
+
+  // 학년+리그별 참가 학급
+  var LEAGUE_CLASSES = {
+    "1학년_A": ["1반","2반","3반","4반"],
+    "1학년_B": ["5반","6반","7반","8반"],
+    "2학년_A": ["1반","2반","3반","4반"],
+    "2학년_B": ["5반","6반","7반","8반"],
+    "3학년_A": ["1반","2반","3반","4반","5반"],
+    "3학년_B": ["6반","7반","8반","9반"]
+  };
+
+  // 학년+리그별 경기 순서 (기본값: 지정한 순서대로, 매 라운드 동일하게 반복됨)
+  var LEAGUE_MATCHUPS = {
+    "1학년_A": [["1반","2반"],["3반","4반"],["1반","3반"],["2반","4반"],["1반","4반"],["2반","3반"]],
+    "2학년_A": [["1반","2반"],["3반","4반"],["1반","3반"],["2반","4반"],["1반","4반"],["2반","3반"]],
+    "3학년_A": [["1반","2반"],["3반","4반"],["1반","5반"],["2반","3반"],["1반","4반"],["2반","5반"],["1반","3반"],["4반","5반"],["2반","4반"],["3반","5반"]],
+    "1학년_B": [["5반","6반"],["7반","8반"],["5반","7반"],["6반","8반"],["5반","8반"],["6반","7반"]],
+    "2학년_B": [["5반","6반"],["7반","8반"],["5반","7반"],["6반","8반"],["5반","8반"],["6반","7반"]],
+    "3학년_B": [["6반","7반"],["8반","9반"],["6반","8반"],["7반","9반"],["6반","9반"],["7반","8반"]]
+  };
+
+  // 라운드마다 대진이 달라지는 리그용 커스텀 대진표 (필요한 리그만 지정, 현재는 없음 — 모든 리그가 같은 대진을 매 라운드 반복)
+  var CUSTOM_ROUND_SCHEDULES = {};
+
+  function leagueId(grade, letter){ return grade + "_" + letter; }
+  function leagueClasses(grade, letter){ return LEAGUE_CLASSES[leagueId(grade, letter)]; }
+  // 리그별 전체 라운드 대진표: 커스텀 지정이 있으면 그걸 쓰고, 없으면 같은 대진을 N_ROUNDS만큼 반복
+  function leagueSchedule(grade, letter){
+    var lid = leagueId(grade, letter);
+    if (CUSTOM_ROUND_SCHEDULES[lid]) return CUSTOM_ROUND_SCHEDULES[lid];
+    var base = LEAGUE_MATCHUPS[lid] || [];
+    var sched = [];
+    for (var i=0;i<N_ROUNDS;i++) sched.push(base);
+    return sched;
+  }
+  function leagueRoundCount(grade, letter){ return leagueSchedule(grade, letter).length; }
+  function roundMatchups(grade, letter, round){
+    var sched = leagueSchedule(grade, letter);
+    return sched[round - 1] || [];
+  }
+  // 리그의 기본(고정) 대진 목록 — CSV 등에서 리그 전체를 나타내는 라벨용으로만 참고
+  function leagueMatchups(grade, letter){ return LEAGUE_MATCHUPS[leagueId(grade, letter)] || []; }
+
+  // ---------- state ----------
+  var currentSport = "volleyball";
+  var currentGrade = "1학년";
+  var currentLetter = "A";
+  var currentRound = 1;
+  var currentTab = "entry";
+  var isAdmin = false;
+  var ADMIN_PASSWORD = "4501";
+
+  // matches[sport][leagueId][ "round_a_b" ] = matchData
+  var matches = { volleyball:{}, soccer:{} };
+
+  function ensureLeagueBucket(sport, lid){
+    if (!matches[sport]) matches[sport] = {};
+    if (!matches[sport][lid]) matches[sport][lid] = {};
+    return matches[sport][lid];
+  }
+
+  function matchKey(round, a, b){ return round + "_" + a + "_" + b; }
+
+  function emptyMatch(sport){
+    if (sport === "volleyball") return { sets:[[null,null],[null,null]] };
+    return { a:null, b:null };
+  }
+
+  function getMatch(sport, lid, round, a, b){
+    var bucket = ensureLeagueBucket(sport, lid);
+    var k = matchKey(round, a, b);
+    if (!bucket[k]) bucket[k] = emptyMatch(sport);
+    return bucket[k];
+  }
+
+  function getSportDef(id){
+    for (var i=0;i<SPORTS.length;i++) if (SPORTS[i].id===id) return SPORTS[i];
+    return SPORTS[0];
+  }
+
+  // ---------- persistence (Firebase Realtime Database, REST API) ----------
+
+  // Firebase는 저장 시 null 값을 가진 항목을 자동으로 삭제하기 때문에,
+  // 세트 점수를 일부만 입력한 채로 저장하면 배열이 어긋난 모양(객체)으로 바뀌어 돌아올 수 있다.
+  // 불러올 때마다 항상 정상적인 배열 모양으로 복구해서 화면 렌더링이 깨지지 않도록 한다.
+  function fixedArray(val, len){
+    var out = [];
+    for (var i=0;i<len;i++){
+      if (Array.isArray(val)) out.push(val[i] !== undefined ? val[i] : null);
+      else if (val && typeof val === "object") out.push(val[i] !== undefined ? val[i] : (val[String(i)] !== undefined ? val[String(i)] : null));
+      else out.push(null);
+    }
+    return out;
+  }
+
+  function normalizeMatchesData(data){
+    if (!data || typeof data !== "object") return { volleyball:{}, soccer:{} };
+    ["volleyball","soccer"].forEach(function(sport){
+      var sportObj = data[sport];
+      if (!sportObj || typeof sportObj !== "object"){ data[sport] = {}; return; }
+      Object.keys(sportObj).forEach(function(lid){
+        var bucket = sportObj[lid];
+        if (!bucket || typeof bucket !== "object"){ sportObj[lid] = {}; return; }
+        Object.keys(bucket).forEach(function(k){
+          var m = bucket[k];
+          if (sport === "volleyball"){
+            var sets2 = fixedArray(m && m.sets, 2).map(function(setVal){ return fixedArray(setVal, 2); });
+            bucket[k] = { sets: sets2 };
+          } else {
+            var a = (m && m.a !== undefined) ? m.a : null;
+            var b = (m && m.b !== undefined) ? m.b : null;
+            bucket[k] = { a: a, b: b };
+          }
+        });
+      });
+    });
+    return data;
+  }
+
+  function loadData(cb){
+    if (!backendReady){ cb(); return; }
+    fetch(FIREBASE_DB_URL + "/" + FIREBASE_PATH + ".json")
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        // res is the raw JSON tree stored at this path, or null if empty
+        if (res && res.volleyball && res.soccer) matches = normalizeMatchesData(res);
+        cb();
+      })
+      .catch(function(){ cb(); });
+  }
+
+  var saveTimer = null;
+  var dirty = false;
+
+  function markUnsaved(){
+    dirty = true;
+    var statusEl = document.getElementById("saveStatus");
+    var btn = document.getElementById("saveBtn");
+    if (statusEl) statusEl.textContent = "변경사항 있음 · 자동 저장 대기 중…";
+    if (btn) btn.classList.remove("saved");
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){ doSave(false); }, 900);
+  }
+
+  function doSave(isManual){
+    var statusEl = document.getElementById("saveStatus");
+    var btn = document.getElementById("saveBtn");
+    if (!backendReady){
+      if (statusEl) statusEl.textContent = "저장 불가 (Firebase Database URL이 설정되지 않음)";
+      return;
+    }
+    if (isManual && btn) btn.textContent = "저장 중…";
+    // PUT: 해당 경로의 데이터를 통째로 덮어씁니다.
+    fetch(FIREBASE_DB_URL + "/" + FIREBASE_PATH + ".json", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(matches)
+    })
+      .then(function(r){
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function(res){
+        dirty = false;
+        var ok = res && res.volleyball;
+        if (statusEl) statusEl.textContent = ok ? "모든 변경사항 저장됨" : "저장 실패 — 다시 시도해 주세요";
+        if (btn){
+          btn.textContent = "경기 결과 저장";
+          if (ok){
+            btn.classList.add("saved");
+            setTimeout(function(){ btn.classList.remove("saved"); }, 900);
+          }
+        }
+      })
+      .catch(function(){
+        if (statusEl) statusEl.textContent = "저장 실패 — 인터넷 연결, Database URL 또는 규칙(rules)을 확인해 주세요";
+        if (btn) btn.textContent = "경기 결과 저장";
+      });
+  }
+
+  // ---------- match stat logic ----------
+  var VB_MAX_SCORE = 15; // 15점 초과 입력 시 오류로 처리 (0~15점만 유효)
+
+  function vbScoreInvalid(v){
+    if (v === null || v === "") return false;
+    var n = Number(v);
+    return isNaN(n) || n < 0 || n > VB_MAX_SCORE;
+  }
+
+  function setWinner(pair){
+    var a = pair[0], b = pair[1];
+    if (a === null || b === null || a === "" || b === "" || a === b) return null;
+    if (vbScoreInvalid(a) || vbScoreInvalid(b)) return null;
+    return a > b ? "A" : "B";
+  }
+
+  function volleyballStats(m){
+    var setsA=0, setsB=0, ptsA=0, ptsB=0, playedSets=0, hasInvalid=false;
+    for (var s=0;s<2;s++){
+      var a=m.sets[s][0], b=m.sets[s][1];
+      if (vbScoreInvalid(a) || vbScoreInvalid(b)) hasInvalid = true;
+      if (a!==null && a!=="" && b!==null && b!=="" && !vbScoreInvalid(a) && !vbScoreInvalid(b)){
+        a=Number(a); b=Number(b);
+        ptsA+=a; ptsB+=b; playedSets++;
+        if (a>b) setsA++; else if (b>a) setsB++;
+      }
+    }
+    var winner=null, complete=false;
+    if (playedSets===2 && !hasInvalid){
+      complete = true;
+      // 세트 스코어가 아니라 2세트 합산 득점(다득점)으로 승패를 가른다.
+      if (ptsA>ptsB) winner="A";
+      else if (ptsB>ptsA) winner="B";
+      else winner="DRAW";
+    }
+    return { setsA:setsA, setsB:setsB, ptsA:ptsA, ptsB:ptsB, playedSets:playedSets, winner:winner, complete:complete, hasInvalid:hasInvalid };
+  }
+
+  function soccerStats(m){
+    var a=m.a, b=m.b, complete=false, winner=null;
+    if (a!==null && a!=="" && b!==null && b!==""){
+      a=Number(a); b=Number(b); complete=true;
+      if (a>b) winner="A"; else if (b>a) winner="B"; else winner="DRAW";
+    } else {
+      a = (a===null||a==="") ? 0 : Number(a);
+      b = (b===null||b==="") ? 0 : Number(b);
+    }
+    return { ptsA:a, ptsB:b, winner:winner, complete:complete };
+  }
+
+  function matchStats(sport, m){
+    return sport === "volleyball" ? volleyballStats(m) : soccerStats(m);
+  }
+
+  function matchHasAnyInput(sport, m){
+    if (sport === "volleyball"){
+      for (var s=0;s<2;s++){
+        if (m.sets[s][0]!==null && m.sets[s][0]!=="") return true;
+        if (m.sets[s][1]!==null && m.sets[s][1]!=="") return true;
+      }
+      return false;
+    }
+    return (m.a!==null && m.a!=="") || (m.b!==null && m.b!=="");
+  }
+
+  // ---------- admin / viewer mode ----------
+  function updateModeUI(){
+    var btn = document.getElementById("modeToggle");
+    var banner = document.getElementById("viewerBanner");
+    var saveBtn = document.getElementById("saveBtn");
+    var resetBtn = document.getElementById("resetBtn");
+    var statusEl = document.getElementById("saveStatus");
+
+    if (isAdmin){
+      btn.textContent = "🔓 관리자 모드";
+      btn.classList.add("is-admin");
+      banner.hidden = true;
+      saveBtn.hidden = false;
+      resetBtn.hidden = false;
+      if (statusEl) statusEl.hidden = false;
+    } else {
+      btn.textContent = "🔒 뷰어 모드";
+      btn.classList.remove("is-admin");
+      banner.hidden = (currentTab !== "entry");
+      saveBtn.hidden = true;
+      resetBtn.hidden = true;
+      if (statusEl) statusEl.hidden = true;
+    }
+  }
+
+  function requestAdminMode(){
+    var pw = window.prompt("관리자 비밀번호를 입력하세요");
+    if (pw === null) return;
+    if (pw === ADMIN_PASSWORD){
+      isAdmin = true;
+      updateModeUI();
+      renderMatchList();
+    } else {
+      window.alert("비밀번호가 올바르지 않아요.");
+    }
+  }
+
+  function exitAdminMode(){
+    isAdmin = false;
+    updateModeUI();
+    renderMatchList();
+  }
+
+  document.getElementById("modeToggle").addEventListener("click", function(){
+    if (isAdmin) exitAdminMode(); else requestAdminMode();
+  });
+
+  // ---------- top-level sport switch ----------
+  function applySportTheme(){
+    var def = getSportDef(currentSport);
+    document.documentElement.style.setProperty("--accent", def.accent);
+    document.documentElement.style.setProperty("--accent-deep", def.accentDeep);
+    document.querySelectorAll("nav.sport-tabs button").forEach(function(btn){
+      btn.classList.toggle("active", btn.getAttribute("data-sport") === currentSport);
+    });
+  }
+
+  function updateHeaderText(){
+    var def = getSportDef(currentSport);
+    var lid = leagueId(currentGrade, currentLetter);
+    var cls = leagueClasses(currentGrade, currentLetter);
+    var rc = leagueRoundCount(currentGrade, currentLetter);
+    document.getElementById("eyebrowText").textContent =
+      def.name + " · " + currentGrade + " " + currentLetter + "리그 · " + cls.length + "개 학급 · " + rc + "라운드";
+    document.getElementById("topSub").textContent =
+      cls.join(", ") + " 학급이 정해진 대진표에 따라 라운드별로 맞붙습니다.";
+  }
+
+  // ---------- rendering: grade / league selector ----------
+  function renderGradeLeagueSelect(){
+    var gradeWrap = document.getElementById("gradeChips");
+    gradeWrap.innerHTML = "";
+    GRADES.forEach(function(g){
+      var chip = document.createElement("button");
+      chip.className = "grade-chip" + (g === currentGrade ? " active" : "");
+      chip.textContent = g;
+      chip.addEventListener("click", function(){
+        currentGrade = g;
+        currentRound = 1;
+        renderGradeLeagueSelect();
+        refreshAll();
+      });
+      gradeWrap.appendChild(chip);
+    });
+
+    var letterWrap = document.getElementById("leagueToggle");
+    letterWrap.innerHTML = "";
+    LETTERS.forEach(function(l){
+      var cls = leagueClasses(currentGrade, l);
+      var btn = document.createElement("button");
+      btn.className = "league-btn" + (l === currentLetter ? " active" : "");
+      btn.innerHTML = l + "리그" + '<span class="count">' + cls[0] + "~" + cls[cls.length-1] + " (" + cls.length + "팀)</span>";
+      btn.addEventListener("click", function(){
+        currentLetter = l;
+        currentRound = 1;
+        renderGradeLeagueSelect();
+        refreshAll();
+      });
+      letterWrap.appendChild(btn);
+    });
+  }
+
+  // ---------- rendering: round strip ----------
+  var roundChipEls = {};
+
+  function roundHasData(round){
+    var lid = leagueId(currentGrade, currentLetter);
+    var bucket = ensureLeagueBucket(currentSport, lid);
+    var pairs = roundMatchups(currentGrade, currentLetter, round);
+    for (var i=0;i<pairs.length;i++){
+      var k = matchKey(round, pairs[i][0], pairs[i][1]);
+      var m = bucket[k];
+      if (m && matchHasAnyInput(currentSport, m)) return true;
+    }
+    return false;
+  }
+
+  function updateCurrentRoundChipDot(){
+    var chip = roundChipEls[currentRound];
+    if (!chip) return;
+    chip.classList.toggle("has-data", roundHasData(currentRound));
+  }
+
+  function renderRoundStrip(){
+    var strip = document.getElementById("roundStrip");
+    strip.innerHTML = "";
+    roundChipEls = {};
+    var rc = leagueRoundCount(currentGrade, currentLetter);
+    for (var r=1;r<=rc;r++){
+      var chip = document.createElement("button");
+      chip.className = "round-chip" + (r===currentRound ? " active":"") + (roundHasData(r) ? " has-data":"");
+      chip.innerHTML = r + "라운드" + '<span class="dot"></span>';
+      (function(rr){
+        chip.addEventListener("click", function(){
+          currentRound = rr;
+          renderRoundStrip();
+          renderMatchList();
+        });
+      })(r);
+      strip.appendChild(chip);
+      roundChipEls[r] = chip;
+    }
+  }
+
+  // ---------- rendering: match list ----------
+  function renderMatchList(){
+    var wrap = document.getElementById("matchList");
+    wrap.innerHTML = "";
+    var lid = leagueId(currentGrade, currentLetter);
+    var pairs = roundMatchups(currentGrade, currentLetter, currentRound);
+
+    pairs.forEach(function(pair){
+      var a = pair[0], b = pair[1];
+      var m = getMatch(currentSport, lid, currentRound, a, b);
+      var card = currentSport === "volleyball"
+        ? renderVolleyballCard(lid, a, b, m)
+        : renderSoccerCard(lid, a, b, m);
+      wrap.appendChild(card);
+    });
+  }
+
+  function renderVolleyballCard(lid, a, b, m){
+    var card = document.createElement("div");
+    card.className = "match-card";
+
+    var head = document.createElement("div");
+    head.className = "match-head";
+
+    var lineA = document.createElement("div");
+    lineA.className = "team-name-line";
+    var nameElA = document.createElement("span");
+    nameElA.className = "team-name";
+    nameElA.textContent = a;
+    var badgeElA = document.createElement("span");
+    badgeElA.className = "team-badge";
+    lineA.appendChild(nameElA);
+    lineA.appendChild(badgeElA);
+    head.appendChild(lineA);
+
+    var net = document.createElement("div");
+    net.className = "net";
+    head.appendChild(net);
+
+    var lineB = document.createElement("div");
+    lineB.className = "team-name-line right";
+    var badgeElB = document.createElement("span");
+    badgeElB.className = "team-badge";
+    var nameElB = document.createElement("span");
+    nameElB.className = "team-name right";
+    nameElB.textContent = b;
+    lineB.appendChild(badgeElB);
+    lineB.appendChild(nameElB);
+    head.appendChild(lineB);
+    card.appendChild(head);
+
+    var setsRow = document.createElement("div");
+    setsRow.className = "sets-row";
+    setsRow.style.gridTemplateColumns = "repeat(2, 1fr)";
+    var setBoxes = [];
+    var setInputs = [];
+    var errorLabels = [];
+
+    for (var s=0;s<2;s++){
+      var box = document.createElement("div");
+      box.className = "set-box";
+
+      var label = document.createElement("div");
+      label.className = "set-label";
+      label.textContent = (s+1) + "세트";
+      box.appendChild(label);
+
+      var inputsWrap = document.createElement("div");
+      inputsWrap.className = "set-inputs";
+
+      var inA = document.createElement("input");
+      inA.type = "number"; inA.min = "0"; inA.max = String(VB_MAX_SCORE); inA.inputMode = "numeric";
+      inA.value = m.sets[s][0] === null ? "" : m.sets[s][0];
+      inA.placeholder = "-";
+      inA.disabled = !isAdmin;
+
+      var dash = document.createElement("span");
+      dash.textContent = ":";
+
+      var inB = document.createElement("input");
+      inB.type = "number"; inB.min = "0"; inB.max = String(VB_MAX_SCORE); inB.inputMode = "numeric";
+      inB.value = m.sets[s][1] === null ? "" : m.sets[s][1];
+      inB.placeholder = "-";
+      inB.disabled = !isAdmin;
+
+      inputsWrap.appendChild(inA);
+      inputsWrap.appendChild(dash);
+      inputsWrap.appendChild(inB);
+      box.appendChild(inputsWrap);
+
+      var errLabel = document.createElement("div");
+      errLabel.className = "set-error";
+      box.appendChild(errLabel);
+
+      setsRow.appendChild(box);
+      setBoxes.push(box);
+      setInputs.push([inA, inB]);
+      errorLabels.push(errLabel);
+    }
+    card.appendChild(setsRow);
+
+    var status = document.createElement("div");
+    status.className = "match-status";
+    card.appendChild(status);
+
+    function refreshCard(){
+      var st = volleyballStats(m);
+      badgeElA.className = "team-badge" + (st.complete ? (st.winner==="A" ? " win" : st.winner==="DRAW" ? " draw" : " lose") : "");
+      badgeElA.textContent = st.complete ? (st.winner==="A" ? "승" : st.winner==="DRAW" ? "무" : "패") : "";
+      badgeElB.className = "team-badge" + (st.complete ? (st.winner==="B" ? " win" : st.winner==="DRAW" ? " draw" : " lose") : "");
+      badgeElB.textContent = st.complete ? (st.winner==="B" ? "승" : st.winner==="DRAW" ? "무" : "패") : "";
+
+      for (var s2=0;s2<2;s2++){
+        var invA = vbScoreInvalid(m.sets[s2][0]);
+        var invB = vbScoreInvalid(m.sets[s2][1]);
+        var sw = setWinner(m.sets[s2]);
+        setBoxes[s2].className = "set-box" + (sw==="A" ? " set-winner-a" : sw==="B" ? " set-winner-b" : "");
+        setInputs[s2][0].classList.toggle("invalid", invA);
+        setInputs[s2][1].classList.toggle("invalid", invB);
+        if (invA || invB){
+          errorLabels[s2].textContent = VB_MAX_SCORE + "점 이하로 입력해주세요";
+        } else {
+          errorLabels[s2].textContent = "";
+        }
+      }
+
+      if (st.hasInvalid){
+        status.textContent = "⚠ 입력한 점수를 확인해주세요";
+        status.className = "match-status error";
+      } else if (st.complete){
+        status.textContent = st.winner === "DRAW" ? "무승부 (총점 동점)" : (st.winner === "A" ? a : b) + " 승리";
+        status.className = st.winner === "DRAW" ? "match-status draw" : "match-status done";
+      } else if (st.playedSets > 0){
+        status.textContent = "진행 중 (" + st.setsA + " : " + st.setsB + ")";
+        status.className = "match-status";
+      } else {
+        status.textContent = "아직 입력 전";
+        status.className = "match-status";
+      }
+    }
+
+    setInputs.forEach(function(pair, setIdx){
+      var inputA = pair[0], inputB = pair[1];
+      function onChange(){
+        m.sets[setIdx][0] = inputA.value === "" ? null : Number(inputA.value);
+        m.sets[setIdx][1] = inputB.value === "" ? null : Number(inputB.value);
+        refreshCard();
+        markUnsaved();
+        updateCurrentRoundChipDot();
+      }
+      inputA.addEventListener("input", onChange);
+      inputB.addEventListener("input", onChange);
+    });
+
+    refreshCard();
+    return card;
+  }
+
+
+  function renderSoccerCard(lid, a, b, m){
+    var card = document.createElement("div");
+    card.className = "match-card";
+
+    var head = document.createElement("div");
+    head.className = "match-head";
+
+    var lineA = document.createElement("div");
+    lineA.className = "team-name-line";
+    var nameElA = document.createElement("span");
+    nameElA.className = "team-name";
+    nameElA.textContent = a;
+    var badgeElA = document.createElement("span");
+    badgeElA.className = "team-badge";
+    lineA.appendChild(nameElA);
+    lineA.appendChild(badgeElA);
+    head.appendChild(lineA);
+
+    var ball = document.createElement("div");
+    ball.className = "ball";
+    ball.textContent = "⚽";
+    head.appendChild(ball);
+
+    var lineB = document.createElement("div");
+    lineB.className = "team-name-line right";
+    var badgeElB = document.createElement("span");
+    badgeElB.className = "team-badge";
+    var nameElB = document.createElement("span");
+    nameElB.className = "team-name right";
+    nameElB.textContent = b;
+    lineB.appendChild(badgeElB);
+    lineB.appendChild(nameElB);
+    head.appendChild(lineB);
+    card.appendChild(head);
+
+    var scoreRow = document.createElement("div");
+    scoreRow.className = "score-row";
+
+    var boxA = document.createElement("div");
+    boxA.className = "score-box";
+    boxA.innerHTML = '<div class="set-label">' + a + '</div>';
+    var inA = document.createElement("input");
+    inA.type = "number"; inA.min = "0"; inA.inputMode = "numeric";
+    inA.value = m.a === null ? "" : m.a;
+    inA.placeholder = "-";
+    inA.disabled = !isAdmin;
+    boxA.appendChild(inA);
+
+    var colon = document.createElement("div");
+    colon.className = "score-colon";
+    colon.textContent = ":";
+
+    var boxB = document.createElement("div");
+    boxB.className = "score-box";
+    boxB.innerHTML = '<div class="set-label">' + b + '</div>';
+    var inB = document.createElement("input");
+    inB.type = "number"; inB.min = "0"; inB.inputMode = "numeric";
+    inB.value = m.b === null ? "" : m.b;
+    inB.placeholder = "-";
+    inB.disabled = !isAdmin;
+    boxB.appendChild(inB);
+
+    scoreRow.appendChild(boxA);
+    scoreRow.appendChild(colon);
+    scoreRow.appendChild(boxB);
+    card.appendChild(scoreRow);
+
+    var status = document.createElement("div");
+    status.className = "match-status";
+    card.appendChild(status);
+
+    function refreshCard(){
+      var st = soccerStats(m);
+      if (st.complete){
+        if (st.winner === "DRAW"){
+          badgeElA.className = "team-badge draw"; badgeElA.textContent = "무";
+          badgeElB.className = "team-badge draw"; badgeElB.textContent = "무";
+        } else {
+          badgeElA.className = "team-badge" + (st.winner==="A" ? " win" : " lose");
+          badgeElA.textContent = st.winner==="A" ? "승" : "패";
+          badgeElB.className = "team-badge" + (st.winner==="B" ? " win" : " lose");
+          badgeElB.textContent = st.winner==="B" ? "승" : "패";
+        }
+        status.textContent = st.winner === "DRAW" ? "무승부" : (st.winner === "A" ? a : b) + " 승리";
+        status.className = st.winner === "DRAW" ? "match-status draw" : "match-status done";
+      } else {
+        badgeElA.className = "team-badge"; badgeElA.textContent = "";
+        badgeElB.className = "team-badge"; badgeElB.textContent = "";
+        status.textContent = "아직 입력 전";
+        status.className = "match-status";
+      }
+    }
+
+    function onChange(){
+      m.a = inA.value === "" ? null : Number(inA.value);
+      m.b = inB.value === "" ? null : Number(inB.value);
+      refreshCard();
+      markUnsaved();
+      updateCurrentRoundChipDot();
+    }
+    inA.addEventListener("input", onChange);
+    inB.addEventListener("input", onChange);
+
+    refreshCard();
+    return card;
+  }
+
+
+  // ---------- standings ----------
+  function hasAnyData(){
+    var lid = leagueId(currentGrade, currentLetter);
+    var bucket = ensureLeagueBucket(currentSport, lid);
+    for (var k in bucket){
+      if (matchHasAnyInput(currentSport, bucket[k])) return true;
+    }
+    return false;
+  }
+
+  function diffClass(v){
+    if (v > 0) return "diff-pos";
+    if (v < 0) return "diff-neg";
+    return "diff-zero";
+  }
+
+  function computeVolleyballStandings(lid, cls, grade, letter){
+    var stats = {};
+    cls.forEach(function(c){ stats[c] = { cls:c, wins:0, draws:0, losses:0, ptsFor:0, ptsAgainst:0 }; });
+    var bucket = ensureLeagueBucket("volleyball", lid);
+    var rc = leagueRoundCount(grade, letter);
+    for (var r=1;r<=rc;r++){
+      roundMatchups(grade, letter, r).forEach(function(pair){
+        var a=pair[0], b=pair[1];
+        var m = bucket[matchKey(r,a,b)];
+        if (!m) return;
+        var st = volleyballStats(m);
+        if (!st.complete) return;
+        stats[a].ptsFor+=st.ptsA; stats[a].ptsAgainst+=st.ptsB;
+        stats[b].ptsFor+=st.ptsB; stats[b].ptsAgainst+=st.ptsA;
+        if (st.winner==="A"){ stats[a].wins++; stats[b].losses++; }
+        else if (st.winner==="B"){ stats[b].wins++; stats[a].losses++; }
+        else { stats[a].draws++; stats[b].draws++; }
+      });
+    }
+    var list = cls.map(function(c){
+      var s = stats[c];
+      s.ptDiff = s.ptsFor - s.ptsAgainst;
+      s.points = s.wins*3 + s.draws*1;
+      return s;
+    });
+    list.sort(function(x,y){
+      if (y.points!==x.points) return y.points-x.points;
+      if (y.ptsFor!==x.ptsFor) return y.ptsFor-x.ptsFor;
+      return y.ptDiff-x.ptDiff;
+    });
+    assignRank(list, function(p,c){ return p.points===c.points && p.ptsFor===c.ptsFor && p.ptDiff===c.ptDiff; });
+    return list;
+  }
+
+  function computeSoccerStandings(lid, cls, grade, letter){
+    var stats = {};
+    cls.forEach(function(c){ stats[c] = { cls:c, wins:0, draws:0, losses:0, gf:0, ga:0 }; });
+    var bucket = ensureLeagueBucket("soccer", lid);
+    var rc = leagueRoundCount(grade, letter);
+    for (var r=1;r<=rc;r++){
+      roundMatchups(grade, letter, r).forEach(function(pair){
+        var a=pair[0], b=pair[1];
+        var m = bucket[matchKey(r,a,b)];
+        if (!m) return;
+        var st = soccerStats(m);
+        if (!st.complete) return;
+        stats[a].gf+=st.ptsA; stats[a].ga+=st.ptsB;
+        stats[b].gf+=st.ptsB; stats[b].ga+=st.ptsA;
+        if (st.winner==="A"){ stats[a].wins++; stats[b].losses++; }
+        else if (st.winner==="B"){ stats[b].wins++; stats[a].losses++; }
+        else { stats[a].draws++; stats[b].draws++; }
+      });
+    }
+    var list = cls.map(function(c){
+      var s = stats[c];
+      s.gd = s.gf - s.ga;
+      s.points = s.wins*3 + s.draws;
+      return s;
+    });
+    list.sort(function(x,y){
+      if (y.points!==x.points) return y.points-x.points;
+      if (y.gd!==x.gd) return y.gd-x.gd;
+      return y.gf-x.gf;
+    });
+    assignRank(list, function(p,c){ return p.points===c.points && p.gd===c.gd && p.gf===c.gf; });
+    return list;
+  }
+
+  function assignRank(list, tieFn){
+    var rank = 1;
+    list.forEach(function(item, idx){
+      if (idx>0 && !tieFn(list[idx-1], item)) rank = idx+1;
+      item.rank = rank;
+    });
+  }
+
+  function renderStandings(){
+    var wrap = document.getElementById("standingsWrap");
+    if (!hasAnyData()){
+      wrap.innerHTML = '<div class="standings-empty">아직 입력된 경기가 없어요.<br>경기 입력 탭에서 점수를 넣어보세요.</div>';
+      return;
+    }
+    var lid = leagueId(currentGrade, currentLetter);
+    var cls = leagueClasses(currentGrade, currentLetter);
+    var html;
+
+    if (currentSport === "volleyball"){
+      var list = computeVolleyballStandings(lid, cls, currentGrade, currentLetter);
+      html = '<table class="standings"><thead><tr>' +
+        '<th>순위</th><th>학급</th><th>승</th><th>무</th><th>패</th><th>승점</th><th>득점</th><th>실점</th><th>득실차</th>' +
+        '</tr></thead><tbody>';
+      list.forEach(function(s){
+        html += '<tr class="' + (s.rank===1?"rank-1":"") + '">' +
+          '<td class="rank-cell">'+s.rank+'</td>' +
+          '<td class="class-cell">'+s.cls+'</td>' +
+          '<td>'+s.wins+'</td><td>'+s.draws+'</td><td>'+s.losses+'</td>' +
+          '<td class="rank-cell">'+s.points+'</td>' +
+          '<td>'+s.ptsFor+'</td><td>'+s.ptsAgainst+'</td>' +
+          '<td class="'+diffClass(s.ptDiff)+'">'+(s.ptDiff>0?"+":"")+s.ptDiff+'</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table>';
+    } else {
+      var list2 = computeSoccerStandings(lid, cls, currentGrade, currentLetter);
+      html = '<table class="standings"><thead><tr>' +
+        '<th>순위</th><th>학급</th><th>승</th><th>무</th><th>패</th><th>승점</th><th>득점</th><th>실점</th><th>득실차</th>' +
+        '</tr></thead><tbody>';
+      list2.forEach(function(s){
+        html += '<tr class="' + (s.rank===1?"rank-1":"") + '">' +
+          '<td class="rank-cell">'+s.rank+'</td>' +
+          '<td class="class-cell">'+s.cls+'</td>' +
+          '<td>'+s.wins+'</td><td>'+s.draws+'</td><td>'+s.losses+'</td>' +
+          '<td class="rank-cell">'+s.points+'</td>' +
+          '<td>'+s.gf+'</td><td>'+s.ga+'</td>' +
+          '<td class="'+diffClass(s.gd)+'">'+(s.gd>0?"+":"")+s.gd+'</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table>';
+    }
+    wrap.innerHTML = html;
+  }
+
+  // ---------- round summary ----------
+  function renderSummary(){
+    var wrap = document.getElementById("summaryWrap");
+    if (!hasAnyData()){
+      wrap.innerHTML = '<div class="summary-empty">아직 입력된 경기가 없어요.<br>경기 입력 탭에서 점수를 넣어보세요.</div>';
+      return;
+    }
+    var lid = leagueId(currentGrade, currentLetter);
+    var cls = leagueClasses(currentGrade, currentLetter);
+    var bucket = ensureLeagueBucket(currentSport, lid);
+    var rc = leagueRoundCount(currentGrade, currentLetter);
+
+    var html = '<div class="summary-scroll"><table class="summary"><thead><tr><th>학급</th>';
+    for (var r=1;r<=rc;r++) html += '<th>' + r + 'R</th>';
+    html += '<th>누적</th></tr></thead><tbody>';
+
+    cls.forEach(function(c){
+      html += '<tr><td>' + c + '</td>';
+      var totalW=0, totalD=0, totalL=0;
+      for (var r=1;r<=rc;r++){
+        var w=0, d=0, l=0;
+        roundMatchups(currentGrade, currentLetter, r).forEach(function(pair){
+          if (pair[0]!==c && pair[1]!==c) return;
+          var m = bucket[matchKey(r, pair[0], pair[1])];
+          if (!m) return;
+          var st = matchStats(currentSport, m);
+          if (!st.complete) return;
+          if (st.winner==="DRAW"){ d++; }
+          else {
+            var won = (st.winner==="A" && pair[0]===c) || (st.winner==="B" && pair[1]===c);
+            if (won) w++; else l++;
+          }
+        });
+        totalW+=w; totalD+=d; totalL+=l;
+        html += '<td><span class="wl-w">'+w+'</span>-<span class="wl-d">'+d+'</span>-<span class="wl-l">'+l+'</span></td>';
+      }
+      html += '<td><span class="wl-w">'+totalW+'</span>-<span class="wl-d">'+totalD+'</span>-<span class="wl-l">'+totalL+'</span></td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+  }
+
+  // ---------- tabs ----------
+  function switchTab(tab){
+    currentTab = tab;
+    document.querySelectorAll("nav.tabs button").forEach(function(btn){
+      btn.classList.toggle("active", btn.getAttribute("data-tab") === tab);
+    });
+    document.getElementById("view-entry").hidden = tab !== "entry";
+    document.getElementById("view-standings").hidden = tab !== "standings";
+    document.getElementById("view-summary").hidden = tab !== "summary";
+    document.getElementById("view-rules").hidden = tab !== "rules";
+    if (tab === "standings") renderStandings();
+    if (tab === "summary") renderSummary();
+    updateModeUI();
+  }
+
+  function updateRulesTabVisibility(){
+    var btn = document.getElementById("rulesTabBtn");
+    if (!btn) return;
+    btn.hidden = (currentSport !== "volleyball");
+    // 축구 탭에서 규칙 탭을 보고 있었다면 경기입력 탭으로 되돌림
+    if (currentSport !== "volleyball" && currentTab === "rules"){
+      switchTab("entry");
+    }
+  }
+
+  function switchSport(sport){
+    currentSport = sport;
+    currentRound = 1;
+    applySportTheme();
+    updateHeaderText();
+    updateRulesTabVisibility();
+    refreshAll();
+  }
+
+  function refreshAll(){
+    updateHeaderText();
+    renderRoundStrip();
+    renderMatchList();
+    if (currentTab === "standings") renderStandings();
+    if (currentTab === "summary") renderSummary();
+  }
+
+  // ---------- CSV export ----------
+  function csvEscape(v){
+    v = String(v);
+    if (/[",\n]/.test(v)) return '"' + v.replace(/"/g, '""') + '"';
+    return v;
+  }
+
+  function buildCsv(){
+    var def = getSportDef(currentSport);
+    var lid = leagueId(currentGrade, currentLetter);
+    var bucket = ensureLeagueBucket(currentSport, lid);
+    var rc = leagueRoundCount(currentGrade, currentLetter);
+    var rows = [];
+
+    if (currentSport === "volleyball"){
+      rows.push(["종목","학년","리그","라운드","학급A","학급B","1세트A","1세트B","2세트A","2세트B","A세트승","B세트승","득점A","득점B","결과"]);
+      for (var r=1;r<=rc;r++){
+        roundMatchups(currentGrade, currentLetter, r).forEach(function(pair){
+          var a=pair[0], b=pair[1];
+          var m = bucket[matchKey(r,a,b)] || emptyMatch("volleyball");
+          var st = volleyballStats(m);
+          var result = "";
+          if (st.complete) result = st.winner==="DRAW" ? "무승부" : (st.winner==="A"?a:b) + " 승";
+          rows.push([def.name, currentGrade, currentLetter+"리그", r, a, b,
+            valOrBlank(m.sets[0][0]), valOrBlank(m.sets[0][1]),
+            valOrBlank(m.sets[1][0]), valOrBlank(m.sets[1][1]),
+            st.setsA, st.setsB, st.ptsA, st.ptsB, result]);
+        });
+      }
+    } else {
+      rows.push(["종목","학년","리그","라운드","학급A","학급B","A점수","B점수","결과"]);
+      for (var r2=1;r2<=rc;r2++){
+        roundMatchups(currentGrade, currentLetter, r2).forEach(function(pair){
+          var a=pair[0], b=pair[1];
+          var m = bucket[matchKey(r2,a,b)] || emptyMatch("soccer");
+          var st = soccerStats(m);
+          var result = "";
+          if (st.complete) result = st.winner==="DRAW" ? "무승부" : (st.winner==="A"?a:b) + " 승";
+          rows.push([def.name, currentGrade, currentLetter+"리그", r2, a, b,
+            valOrBlank(m.a), valOrBlank(m.b), result]);
+        });
+      }
+    }
+
+    return rows.map(function(row){ return row.map(csvEscape).join(","); }).join("\r\n");
+  }
+
+  function valOrBlank(v){ return (v===null || v===undefined) ? "" : v; }
+
+  function downloadCsv(){
+    var csv = "\uFEFF" + buildCsv();
+    var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    var def = getSportDef(currentSport);
+    a.href = url;
+    a.download = def.name + "_" + currentGrade + currentLetter + "리그_경기결과.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  document.querySelectorAll("nav.sport-tabs button").forEach(function(btn){
+    btn.addEventListener("click", function(){ switchSport(btn.getAttribute("data-sport")); });
+  });
+  document.querySelectorAll("nav.tabs button").forEach(function(btn){
+    btn.addEventListener("click", function(){ switchTab(btn.getAttribute("data-tab")); });
+  });
+
+  document.getElementById("saveBtn").addEventListener("click", function(){
+    clearTimeout(saveTimer);
+    doSave(true);
+    refreshAll();
+  });
+
+  document.getElementById("exportBtn").addEventListener("click", function(){
+    if (!hasAnyData()){
+      alert("내보낼 경기 결과가 없어요. 먼저 점수를 입력해 주세요.");
+      return;
+    }
+    downloadCsv();
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    var def = getSportDef(currentSport);
+    if (!confirm(def.name + " · " + currentGrade + " " + currentLetter + "리그 기록을 모두 초기화할까요? 되돌릴 수 없어요.")) return;
+    var lid = leagueId(currentGrade, currentLetter);
+    matches[currentSport][lid] = {};
+    markUnsaved();
+    doSave(false);
+    refreshAll();
+  });
+
+  // ---------- init ----------
+  loadData(function(){
+    applySportTheme();
+    updateModeUI();
+    updateRulesTabVisibility();
+    renderGradeLeagueSelect();
+    refreshAll();
+    var statusEl = document.getElementById("saveStatus");
+    if (!backendReady){
+      window.alert("Firebase Database URL이 설정되지 않았어요.\n\nindex.html 상단의 FIREBASE_DB_URL 값을 Firebase 콘솔에서 만든 Realtime Database URL로 바꿔주세요.\n지금은 저장 없이 화면에서만 확인할 수 있어요.");
+      if (statusEl) statusEl.textContent = "⚠ Firebase Database URL 미설정 — 저장되지 않음";
+    } else if (statusEl) {
+      statusEl.textContent = "불러온 기록 표시 중 · 변경 시 자동 저장돼요";
+    }
+    startPolling();
+  });
+
+  // ---------- live sync: pick up other people's saved changes ----------
+  function startPolling(){
+    setInterval(function(){
+      var active = document.activeElement;
+      var isTyping = active && active.tagName === "INPUT";
+      if (isTyping || dirty) return; // 입력 중이거나 저장 대기 중이면 건너뜀
+      loadData(function(){
+        renderRoundStrip();
+        renderMatchList();
+        if (currentTab === "standings") renderStandings();
+        if (currentTab === "summary") renderSummary();
+      });
+    }, 15000);
+  }
+
+})();
+</script>
+</body>
+</html>
